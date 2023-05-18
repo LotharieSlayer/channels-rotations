@@ -49,7 +49,7 @@ async function execute(interaction) {
 		const freeCategory = interaction.options.getChannel("free_category");
 		const infos = interaction.options.getChannel("infos");
 
-		if(infos.type !== ChannelType.GuildText) {
+		if(infos.type !== ChannelType.GuildText && infos.type !== ChannelType.GuildAnnouncement) {
 			await interaction.reply({
 				content: `Le channel d'infos doit être un channel textuel !`,
 				ephemeral: true,
