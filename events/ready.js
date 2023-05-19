@@ -7,6 +7,7 @@
 
 const { setupChannelsRotation } = require("../utils/enmapUtils");
 const { numberOfChannelsToSelect, day } = require("../init");
+const { EmbedBuilder } = require("discord.js");
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
@@ -28,14 +29,20 @@ async function setChannels(client) {
 	for (const [key, value] of results) {
 		if(value.datetime < Date.now()){
 			await getRandomChannelsFromCategory(value.categoryId, value.freeCategoryId, client);
-			await setupChannelsRotation.update(key, { datetime: Date.now() + day * 7 });
+			await setupChannelsRotation.update(key, { datetime: Date.now() + day });
 			const infos = await client.channels.fetch(value.infosId);
 			const categoryFree = await client.channels.fetch(value.freeCategoryId);
 			let channels = "";
 			for (const channel of categoryFree.children.cache) {
 				channels += `<#${channel[1].id}> `;
 			}
-			await infos.send(`Les salons gratuits de la semaine ont été changés !\nLes channels gratuits sont désormais : ${channels}`);
+			const embed = new EmbedBuilder()
+				.setTitle("Roulement des salons gratuits")
+				.setDescription(`Les salons gratuits ont été changés !\nVous pouvez poster aujourd'hui dans ${channels}`)
+				.setColor("#EB459E")
+				.setTimestamp();
+
+			await infos.send({ embeds: [embed] });
 		}
 	}
 }
