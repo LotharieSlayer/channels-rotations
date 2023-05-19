@@ -16,25 +16,30 @@ const { numberOfChannelsToSelect, day } = require("../init");
  * @param {Client} client The client that emitted the event.
  */
 async function execute( client ) {
+	setChannels(client);
 	setInterval(async () => {
-		const results = await setupChannelsRotation.fetchEverything()
-		if(results === undefined) return;
-		for (const [key, value] of results) {
-			if(value.datetime < Date.now()){
-				await getRandomChannelsFromCategory(value.categoryId, value.freeCategoryId, client);
-				await setupChannelsRotation.update(key, { datetime: Date.now() + day * 7 });
-				const infos = await client.channels.fetch(value.infosId);
-				const categoryFree = await client.channels.fetch(value.freeCategoryId);
-				let channels = "";
-				for (const channel of categoryFree.children.cache) {
-					channels += `<#${channel[1].id}> `;
-				}
-				await infos.send(`Les salons gratuits de la semaine ont été changés !\nLes channels gratuits sont désormais : ${channels}`);
-			}
-		}
+		setChannels(client);
 	}, day / 2);
 }
- 
+
+async function setChannels(client) {
+	const results = await setupChannelsRotation.fetchEverything()
+	if(results === undefined) return;
+	for (const [key, value] of results) {
+		if(value.datetime < Date.now()){
+			await getRandomChannelsFromCategory(value.categoryId, value.freeCategoryId, client);
+			await setupChannelsRotation.update(key, { datetime: Date.now() + day * 7 });
+			const infos = await client.channels.fetch(value.infosId);
+			const categoryFree = await client.channels.fetch(value.freeCategoryId);
+			let channels = "";
+			for (const channel of categoryFree.children.cache) {
+				channels += `<#${channel[1].id}> `;
+			}
+			await infos.send(`Les salons gratuits de la semaine ont été changés !\nLes channels gratuits sont désormais : ${channels}`);
+		}
+	}
+}
+
 async function getRandomChannelsFromCategory( categoryPayId, categoryFreeId, client ){
 	const categoryFree = await client.channels.fetch(categoryFreeId);
 	
