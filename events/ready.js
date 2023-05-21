@@ -20,16 +20,16 @@ async function execute( client ) {
 	setChannels(client);
 	setInterval(async () => {
 		setChannels(client);
-	}, day / 2);
+	}, day / 48);
 }
 
 async function setChannels(client) {
 	const results = await setupChannelsRotation.fetchEverything()
 	if(results === undefined) return;
 	for (const [key, value] of results) {
-		if(value.datetime < Date.now()){
+		if(value.datetime !== new Date().getDay()){
 			await getRandomChannelsFromCategory(value.categoryId, value.freeCategoryId, client);
-			await setupChannelsRotation.update(key, { datetime: Date.now() + day });
+			await setupChannelsRotation.update(key, { datetime: new Date().getDay() });
 			const infos = await client.channels.fetch(value.infosId);
 			const categoryFree = await client.channels.fetch(value.freeCategoryId);
 			let channels = "";
